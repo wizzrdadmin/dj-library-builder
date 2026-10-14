@@ -1,0 +1,5 @@
+Flask>=3.0.0
+Flask-Cors>=4.0.0
+mutagen>=1.46.0
+requests>=2.31.0
+beautifulsoup4>=4.12.2

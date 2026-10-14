@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DJ Library Builder v2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #888;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #00d4ff;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #aaa;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #00d4ff;
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+        }
+
+        input[type="text"]::placeholder {
+            color: #666;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            flex: 1;
+            min-width: 140px;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            color: #000;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(0, 212, 255, 0.2);
+            color: #00d4ff;
+            border: 1px solid #00d4ff;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: rgba(0, 212, 255, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.2);
+        }
+
+        .btn-danger {
+            background: rgba(255, 80, 80, 0.2);
+            color: #ff5050;
+            border: 1px solid #ff5050;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background: rgba(255, 80, 80, 0.3);
+            box-shadow: 0 4px 12px rgba(255, 80, 80, 0.2);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .status-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #00d4ff;
+        }
+
+        .status-box::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .status-box::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+
+        .status-box::-webkit-scrollbar-thumb {
+            background: rgba(0, 212, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        .status-box::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 212, 255, 0.5);
+        }
+
+        .status-message {
+            margin-bottom: 4px;
+        }
+
+        .progress-section {
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00d4ff, #0099ff);
+            width: 0%;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        .progress-text {
+            font-size: 13px;
+            color: #aaa;
+            text-align: center;
+        }
+
+        .resumable-session {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .resumable-session h3 {
+            color: #00d4ff;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .resumable-session p {
+            font-size: 13px;
+            color: #aaa;
+            margin-bottom: 4px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .error-message {
+            background: rgba(255, 80, 80, 0.1);
+            border: 1px solid #ff5050;
+            color: #ff8080;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+
+        .success-message {
+            background: rgba(80, 200, 80, 0.1);
+            border: 1px solid #50c850;
+            color: #80ff80;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+
+        @media (max-width: 600px) {
+            .button-group {
+                flex-direction: column;
+            }
+
+            button {
+                min-width: unset;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎵 DJ Library Builder v2</h1>
+            <p>Build a 320 kbps DJ library from Apple Music playlists</p>
+        </div>
+
+        <div class="card">
+            <span class="section-title">Apple Music Playlist</span>
+
+            <div id="error-message" class="error-message hidden"></div>
+            <div id="success-message" class="success-message hidden"></div>
+
+            <div id="resumable-session" class="resumable-session hidden">
+                <h3>✨ Found Resumable Session</h3>
+                <p>Playlist: <span id="resume-playlist"></span></p>
+                <p>Progress: <span id="resume-progress"></span></p>
+            </div>
+
+            <div class="input-group">
+                <label for="playlist-url">Paste Apple Music Playlist URL</label>
+                <input
+                    type="text"
+                    id="playlist-url"
+                    placeholder="https://music.apple.com/us/playlist/..."
+                >
+            </div>
+
+            <div class="button-group">
+                <button id="btn-start" class="btn-primary">Start New Session</button>
+                <button id="btn-resume" class="btn-secondary" disabled>Resume Session</button>
+                <button id="btn-stop" class="btn-danger" disabled>Stop</button>
+                <button id="btn-begin" class="btn-primary hidden">I've started the playlist</button>
+                <button id="btn-clear" class="btn-danger">Clear Session</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <span class="section-title">Status</span>
+            <div id="status-box" class="status-box">
+                <div class="status-message">Waiting to start...</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <span class="section-title">Progress</span>
+            <div class="progress-section">
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill"></div>
+                </div>
+                <div class="progress-text" id="progress-text">0 / 0 tracks processed</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const playlistUrlInput = document.getElementById('playlist-url');
+        const btnStart = document.getElementById('btn-start');
+        const btnResume = document.getElementById('btn-resume');
+        const btnStop = document.getElementById('btn-stop');
+        const btnClear = document.getElementById('btn-clear');
+        const btnBegin = document.getElementById('btn-begin');
+        const statusBox = document.getElementById('status-box');
+        const errorMessage = document.getElementById('error-message');
+        const successMessage = document.getElementById('success-message');
+        const resumableSession = document.getElementById('resumable-session');
+        const progressFill = document.getElementById('progress-fill');
+        const progressText = document.getElementById('progress-text');
+
+        let isProcessing = false;
+        let statusAutoScroll = true;
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            checkStatus();
+            // Poll status every 1 second
+            setInterval(checkStatus, 1000);
+        });
+
+        // Button event listeners
+        btnStart.addEventListener('click', startNewSession);
+        btnResume.addEventListener('click', resumeSession);
+        btnStop.addEventListener('click', stopProcessing);
+        btnClear.addEventListener('click', clearSession);
+        btnBegin.addEventListener('click', beginRecording);
+
+        // Stop scrolling when user scrolls up
+        statusBox.addEventListener('scroll', () => {
+            const scrollTop = statusBox.scrollTop;
+            const scrollHeight = statusBox.scrollHeight;
+            const clientHeight = statusBox.clientHeight;
+            statusAutoScroll = (scrollHeight - scrollTop - clientHeight) < 10;
+        });
+
+        // ====================================================================
+        // API Functions
+        // ====================================================================
+
+        async function checkStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+
+                isProcessing = data.processing;
+
+                // Update button states
+                btnStart.disabled = isProcessing;
+                btnResume.disabled = isProcessing;
+                btnStop.disabled = !isProcessing;
+                btnClear.disabled = isProcessing;
+                btnBegin.classList.toggle('hidden', !data.waiting_for_playback);
+                btnBegin.disabled = !data.waiting_for_playback;
+
+                // Progress bar
+                if (data.progress && data.progress.total > 0) {
+                    const pct = Math.round((data.progress.completed / data.progress.total) * 100);
+                    progressFill.style.width = pct + '%';
+                    progressText.textContent =
+                        `${data.progress.completed} / ${data.progress.total} tracks processed`;
+                }
+                playlistUrlInput.disabled = isProcessing;
+
+                // Check for resumable session
+                if (!isProcessing && data.session_found && data.session_info) {
+                    resumableSession.classList.remove('hidden');
+                    btnResume.disabled = false;
+
+                    document.getElementById('resume-playlist').textContent =
+                        data.session_info.playlist_url;
+                    document.getElementById('resume-progress').textContent =
+                        `${data.session_info.completed}/${data.session_info.total} tracks`;
+                } else {
+                    resumableSession.classList.add('hidden');
+                    btnResume.disabled = true;
+                }
+
+                // Update status messages
+                updateStatusMessages(data.messages);
+
+            } catch (error) {
+                console.error('Error checking status:', error);
+            }
+        }
+
+        async function startNewSession() {
+            const playlistUrl = playlistUrlInput.value.trim();
+
+            if (!playlistUrl) {
+                showError('Please enter an Apple Music playlist URL');
+                return;
+            }
+
+            clearMessages();
+
+            try {
+                const response = await fetch('/api/start', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        playlist_url: playlistUrl,
+                        output_dir: null
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    showError(data.error || 'Failed to start session');
+                    return;
+                }
+
+                showSuccess('Session started! Processing will begin shortly...');
+                isProcessing = true;
+                checkStatus();
+
+            } catch (error) {
+                showError('Error starting session: ' + error.message);
+            }
+        }
+
+        async function resumeSession() {
+            clearMessages();
+
+            try {
+                const response = await fetch('/api/resume', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    showError(data.error || 'Failed to resume session');
+                    return;
+                }
+
+                showSuccess('Session resumed! Processing continues...');
+                isProcessing = true;
+                checkStatus();
+
+            } catch (error) {
+                showError('Error resuming session: ' + error.message);
+            }
+        }
+
+        async function beginRecording() {
+            clearMessages();
+            try {
+                const response = await fetch('/api/begin-recording', { method: 'POST' });
+                const data = await response.json();
+                if (!response.ok) {
+                    showError(data.error || 'Could not start recording');
+                    return;
+                }
+                checkStatus();
+            } catch (error) {
+                showError('Error starting recording: ' + error.message);
+            }
+        }
+
+        async function stopProcessing() {
+            try {
+                const response = await fetch('/api/stop', {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    isProcessing = false;
+                    checkStatus();
+                }
+            } catch (error) {
+                showError('Error stopping processing: ' + error.message);
+            }
+        }
+
+        async function clearSession() {
+            if (!confirm('Are you sure you want to clear the saved session?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/clear', {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    showError(data.error || 'Failed to clear session');
+                    return;
+                }
+
+                showSuccess('Session cleared');
+                checkStatus();
+
+            } catch (error) {
+                showError('Error clearing session: ' + error.message);
+            }
+        }
+
+        // ====================================================================
+        // UI Helper Functions
+        // ====================================================================
+
+        function updateStatusMessages(messages) {
+            if (messages.length === 0) return;
+
+            statusBox.innerHTML = messages
+                .map(msg => `<div class="status-message">${escapeHtml(msg)}</div>`)
+                .join('');
+
+            if (statusAutoScroll) {
+                statusBox.scrollTop = statusBox.scrollHeight;
+            }
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.remove('hidden');
+            setTimeout(() => {
+                errorMessage.classList.add('hidden');
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.classList.remove('hidden');
+            setTimeout(() => {
+                successMessage.classList.add('hidden');
+            }, 5000);
+        }
+
+        function clearMessages() {
+            errorMessage.classList.add('hidden');
+            successMessage.classList.add('hidden');
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,313 @@
+================================================================================
+              DJ LIBRARY BUILDER v2 - CHECKPOINT & RESUME SYSTEM
+================================================================================
+
+Major Upgrade: Stop & Resume Anytime Without Losing Progress
+
+================================================================================
+WHAT'S NEW IN v2
+================================================================================
+
+✅ CHECKPOINT SYSTEM
+   - Saves progress after every track processed
+   - Remembers which tracks are done
+   - Can stop and resume 100% of work
+
+✅ RESUME FROM ANYWHERE
+   - Stop processing anytime
+   - Restart the app hours/days later
+   - Pick up exactly where you left off
+
+✅ SKIP COMPLETED TRACKS
+   - Already-processed tracks are skipped automatically
+   - No re-recording or re-processing
+   - Saves time on resume
+
+✅ GRACEFUL STOP
+   - Click "STOP" button to pause
+   - Session saved automatically
+   - "RESUME SESSION" button appears next restart
+
+✅ MULTIPLE SESSIONS
+   - Process one playlist, then another
+   - Each has its own session folder
+   - Clear old sessions anytime
+
+================================================================================
+HOW IT WORKS
+================================================================================
+
+FIRST TIME:
+  1. Paste playlist URL
+  2. Click "START NEW SESSION"
+  3. Let it record and process
+  4. At any point, click "STOP"
+  5. Progress saved ✓
+
+NEXT TIME:
+  1. Open app
+  2. App shows "Found resumable session"
+  3. Shows: 67/300 tracks completed
+  4. Click "RESUME SESSION"
+  5. Continues from track 68
+  6. Skips all 67 completed tracks
+
+================================================================================
+PRACTICAL EXAMPLE
+================================================================================
+
+MONDAY 6 PM:
+  - Start: "START NEW SESSION"
+  - Let it run 4 hours
+  - Recording: 67 tracks
+  - Processing: ~50% done
+  - 10 PM: Click "STOP"
+  - Session saved ✓
+
+TUESDAY 8 AM:
+  - Open app
+  - Click "RESUME SESSION"
+  - Skips first 67 tracks
+  - Processes remaining 233
+  - Takes ~4 more hours
+  - Done by 2 PM ✓
+
+TOTAL: 20 hours across 2 days (vs 30 hours straight)
+
+================================================================================
+SESSION STRUCTURE
+================================================================================
+
+~/.dj_builder_cache/sessions/
+  20240101_120000/          <- Session ID (date_time)
+    progress.json           <- Current state (which tracks done, etc)
+    recording.wav           <- Full audio recording (kept as backup)
+    track_001.wav           <- Split audio files
+    track_002.wav
+    ...
+    playlist_metadata.json  <- All track info
+
+When you resume, app reads progress.json to see which tracks are done.
+
+================================================================================
+PROGRESS TRACKING
+================================================================================
+
+progress.json contains:
+
+{
+  "playlist_url": "https://music.apple.com/us/playlist/...",
+  "total_tracks": 300,
+  "completed_tracks": [0, 1, 2, ...],     <- Track indices (0-based)
+  "failed_tracks": [...],                 <- Failed tracks with errors
+  "current_phase": "processing",          <- idle, recording, processing, done
+  "started_at": "2024-01-01T18:00:00",
+  "last_updated": "2024-01-02T08:00:00",
+  "recording_file": "...",
+  "split_files": [...]
+}
+
+App reads this on startup to:
+  1. Detect if session can be resumed
+  2. Skip already-completed tracks
+  3. Show progress percentage
+  4. Show how many tracks remaining
+
+================================================================================
+STOPPING & RESUMING
+================================================================================
+
+WHEN YOU CLICK "STOP":
+  ✓ Recording stops immediately (or continues if already recording)
+  ✓ Processing stops between tracks
+  ✓ Partial track might not be completed
+  ✓ Session saved to progress.json
+  ✓ "RESUME SESSION" button appears next time
+
+WHEN YOU RESUME:
+  ✓ App detects previous session
+  ✓ Loads progress.json
+  ✓ Shows how many completed
+  ✓ Skips all completed tracks
+  ✓ Continues with remaining
+
+NO RE-RECORDING NEEDED:
+  ✓ Recording is already done (saved as recording.wav)
+  ✓ Split files exist (track_001.wav, etc)
+  ✓ Only need to transcode remaining tracks
+
+================================================================================
+CLEARING SESSIONS
+================================================================================
+
+Each session takes ~10 GB disk space (recording + temp files + tracks).
+
+Clear old session from app:
+  - Click "Clear Session" button
+  - Deletes that session's folder
+
+Clear all sessions from Terminal:
+  bash
+  rm -rf ~/.dj_builder_cache/sessions/*
+
+This keeps final tracks in ~/Music/DJ-Library/ (those don't get deleted).
+
+================================================================================
+ERROR HANDLING
+================================================================================
+
+If a track fails to process:
+  ✓ Error logged to progress.json
+  ✓ Track marked as "failed"
+  ✓ Processing continues with next track
+  ✓ Can retry failed tracks on resume
+
+If app crashes:
+  ✓ Progress saved up to last checkpoint
+  ✓ Restart app
+  ✓ Click "RESUME SESSION"
+  ✓ Continues from checkpoint
+  ✓ No work lost
+
+If recording file deleted:
+  ✗ Need to re-record (can't resume that part)
+  ✓ All processed tracks still in ~/Music/DJ-Library/
+
+================================================================================
+BATCH PROCESSING
+================================================================================
+
+Process multiple playlists sequentially:
+
+SESSION 1:
+  "NEW HOUSE" playlist
+  300 tracks
+  Stop at any point
+  Session: 20240101_120000
+
+SESSION 2:
+  "TECHNO VIBES" playlist
+  250 tracks
+  Independent session
+  Session: 20240102_140000
+
+SESSION 3:
+  "DEEP HOUSE" playlist
+  150 tracks
+  Independent session
+  Session: 20240103_190000
+
+Each playlist gets its own:
+  - Recording
+  - Progress tracking
+  - Session folder
+  - Track organization
+
+Clear old sessions to free space. Final tracks in ~/Music/DJ-Library/ stay.
+
+================================================================================
+TECH DETAILS
+================================================================================
+
+progress_tracker.py:
+  - Tracks completion state
+  - Saves checkpoints to progress.json
+  - Loads previous sessions
+  - Calculates progress %
+
+processor.py updates:
+  - Checks progress before processing each track
+  - Skips completed tracks
+  - Saves checkpoint after each track completes
+  - Can resume from any checkpoint
+
+dj_library_builder.py updates:
+  - Detects resumable sessions on startup
+  - Shows "RESUME SESSION" button if available
+  - Allows starting new or resuming old
+  - Stops gracefully when user clicks STOP
+
+================================================================================
+FILES IN V2
+================================================================================
+
+dj_library_builder.py   - Main GUI (updated with resume logic)
+progress_tracker.py     - NEW: Checkpoint system
+processor.py            - Updated to skip completed tracks
+scraper.py              - Same as v1
+config.py               - Same as v1
+requirements.txt        - Same as v1
+setup.sh                - Same as v1
+README.md               - NEW: Explains checkpoint system
+QUICKSTART.md           - NEW: Simple step-by-step with resume examples
+
+================================================================================
+UPGRADE FROM v1
+================================================================================
+
+v1 didn't have checkpoints. If you used v1:
+
+DON'T USE OLD SESSIONS:
+  - v1 sessions don't have progress.json
+  - Can't resume v1 sessions with v2
+  - Start fresh with v2
+
+KEEP YOUR TRACKS:
+  - Final tracks from v1 are in ~/Music/DJ-Library/
+  - Those are safe and still usable
+  - v2 will just organize new ones the same way
+
+CLEAR v1 CACHE:
+  bash
+  rm -rf ~/.dj_builder_cache/sessions/*
+
+Use v2 from now on for better control.
+
+================================================================================
+PERFORMANCE
+================================================================================
+
+Timeline for 300-track playlist:
+
+SCENARIO 1: Run straight through (no stops)
+  Recording:      24 hours
+  Processing:     6-8 hours
+  Total:          30-32 hours
+
+SCENARIO 2: Stop and resume (2 sessions)
+  Day 1: 4 hours recording + 2 hours processing = 67 tracks done
+  Day 2: 4 hours processing remaining tracks = done
+
+  Wall-clock time:  20 hours across 2 days
+  Actual CPU time:  ~10 hours total
+  Benefit:         Done faster IRL, spread across days
+
+SCENARIO 3: Multiple stop/resume cycles
+  Stop every few hours
+  Resume whenever convenient
+  Final result: Same 30-32 hours of CPU work
+  But: Spread across days/weeks as you have time
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+1. Download dj_app_v2.tar.gz
+2. Extract it
+3. Run setup.sh
+4. Start using!
+
+Read QUICKSTART.md for simple step-by-step guide.
+Read README.md for full technical documentation.
+
+================================================================================
+QUESTIONS?
+================================================================================
+
+Check ~/.dj_builder_cache/sessions/*/progress.json to see exact state.
+
+The progress.json file is your source of truth for what's done.
+
+Good luck building your DJ library! 🎵
+
+================================================================================
